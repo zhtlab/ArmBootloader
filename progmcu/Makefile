@@ -25,14 +25,21 @@
 
 ### target
 TARGET		= progmcu
+TARGET_KINETIS	= 0
+TARGET_LPC	= 0
+TARGET_STM	= 1
+
 ### sources
 SOURCESASM	= 
 SOURCES		= base/main.c base/serial.c base/prog.c base/crc32.c \
-			stm32/progstm32.c stm32/idtbl.c \
-			kinetis/progmkl43.c \
+
+ifeq ($(TARGET_KINETIS), 1)
+SOURCES		+= kinetis/progmkl43.c \
 			kinetis/fsl_crc/src/crc16.c
-
-
+endif
+ifeq ($(TARGET_STM), 1)
+SOURCES		+= stm32/progstm32.c stm32/idtbl.c
+endif
 
 #
 # select compile environment
@@ -43,8 +50,10 @@ CFLAGS_WARN	= -Wall -Wunused-result #-Wunused-function
 CFLAGS		= $(CFLAGS_WARN) -O -I . -I base \
 			-I kinetis \
 			-I kinetis/fsl_crc \
-			-I lpc -I stm32
-
+			-I lpc -I stm32 \
+			-DTARGET_KINETIS=$(TARGET_KINETIS) \
+			-DTARGET_LPC=$(TARGET_LPC) \
+			-DTARGET_STM=$(TARGET_STM)
 
 ASFLAGS		=
 

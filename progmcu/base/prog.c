@@ -25,8 +25,12 @@
 
 #include	<stdint.h>
 
+#if TARGET_STM
 #include	"stm32/progstm32.h"
+#endif
+#if TARGET_KINETIS
 #include	"kinetis/progmkl43.h"
+#endif
 #include	"prog.h"
 
 static int	modelType;
@@ -34,11 +38,23 @@ static int	serialMode;
 
 static int	(*api[][SERIALMODE_END-1])(int unit, int req, void *ptr, int size) = {
   /* 1  kinetis */
+#if TARGET_KINETIS
   {Progmkl43Api, PROG_NULL, PROG_NULL, PROG_NULL},
-  /* 2  LPC */
+#else
   {PROG_NULL, PROG_NULL, PROG_NULL, PROG_NULL},
+#endif
+  /* 2  LPC */
+#if TARGET_KINETIS
+  {ProgLpc, PROG_NULL, PROG_NULL, PROG_NULL},
+#else
+  {PROG_NULL, PROG_NULL, PROG_NULL, PROG_NULL},
+#endif
   /* 3  STM32 */
+#if TARGET_STM
   {Progstm32Api, PROG_NULL, PROG_NULL, PROG_NULL},
+#else
+  {PROG_NULL, PROG_NULL, PROG_NULL, PROG_NULL},
+#endif
 };
 
 
