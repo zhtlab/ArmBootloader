@@ -25,6 +25,7 @@
 #define	_IDTBL_H_
 
 int		IdtblStm32GetSectorByAddr(int chipId, uint32_t *addr);
+uint8_t         IdtblStm32GetBlankValueById(int chipId);
 void		IdtblStm32GetChipName(int chipId, char *ptr, int len);
 
 #endif

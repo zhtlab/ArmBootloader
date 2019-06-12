@@ -749,7 +749,7 @@ Progstm32EraseBlock(int unit, struct _stProgData *ptr, int size)
     }
   } else if(psc->fCmdErase) {
   }
-  
+
 fail:
   return result;
 }
@@ -918,6 +918,7 @@ Progstm32CheckBlockBlank(int unit, struct _stProgData *ptr, int size)
 {
   int		result = PROG_ERRNO_UNKNOWN;
   int		i, sz;
+  uint8_t       valBlank = 0xff;
 
   uint8_t	buf[PROGSTM32_ERASE_SECTOR_BYTES];
   struct _stProgData	d;
@@ -943,6 +944,8 @@ Progstm32CheckBlockBlank(int unit, struct _stProgData *ptr, int size)
     d.start = ptr->start;
     sz = ptr->size;
 
+    valBlank = IdtblStm32GetBlankValueById(psc->chipID);
+
     while(sz > 0) {
       d.size = sizeof(buf);
       if(sz < sizeof(buf)) d.size = sz;
@@ -953,7 +956,7 @@ Progstm32CheckBlockBlank(int unit, struct _stProgData *ptr, int size)
 	break;
       }
       for(i = 0; i < d.size; i++) {
-	if(d.ptr[i] !=0xff) {
+	if(d.ptr[i] != valBlank) {
 	  sz = 0;
 	  result = PROG_ERRNO_DATACHECK;
 	  break;
@@ -1554,6 +1557,7 @@ Progstm32CmdWriteMemory(int unit, struct _stProgData *ptr, int size)
 	buf[0] = Progstm32CalcCheckSum(p, n) ^ (n-1);
       }
       result = Progstm32SendDataWaitAckTout(unit, buf, 1, 256*PROGSTM32_TIME_tPROG);
+
       if(result != PROG_ERRNO_SUCCESS) goto fail;
     }
 
@@ -1952,6 +1956,7 @@ Progstm32SendDataWaitAckTout(int unit, uint8_t *ptr, int size, time_t tout)
       } else if(c == STM32_NACK) {
 	result = PROG_ERRNO_NACK_RECV;
       } else {
+        fprintf(stderr, "# WARN Progstm32SendDataWaitAckTout() return value is invalid.  recv size:%d val:%02x\r\n", result, c);
 	result = PROG_ERRNO_COMMUNICATION;
       }
       break;

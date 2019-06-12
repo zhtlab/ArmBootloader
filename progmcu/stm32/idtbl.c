@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 zhtlab
+ * Copyright (c) 2018,2019 zhtlab
  *
  * Permission is hereby granted, free of charge, to any person obtaining
  * a copy of this software and associated documentation files
@@ -37,14 +37,39 @@ struct _stMemeory {
 struct _stIdtbl {
   int			id;
   char			name[16];
-  struct _stMemeory	mem[8];
+  struct _stMemeory	mem[8];         /* flash memory list */
   int			boot[8];
   int			user;
   int			firm;
+  uint8_t               valBlank;
 };
 
 
 static struct _stIdtbl		idtbl[] = {
+  {0x425,		/* chip id */
+   "STM32L031",		/* chip name */
+   {			/* memory map */
+     {0x08000000, 0x0080,  256, 0},
+     {-1, -1, -1, -1},
+   },
+   {0, 1, 2, 3,  -1, -1, -1, -1},
+   1,           /* user data 0x01000 - 0x01fff */
+   128,         /* firmware  0x04000 -         */
+   0x00         /* blank value */
+  },
+
+  {0x447,		/* chip id */
+   "STM32L072",		/* chip name */
+   {			/* memory map */
+     {0x08000000, 0x0080,  1536, 0},
+     {-1, -1, -1, -1},
+   },
+   {0, 1, 2, 3,  -1, -1, -1, -1},
+   1,           /* user data 0x01000 - 0x01fff */
+   128,         /* firmware  0x04000 -         */
+   0x00         /* blank value */
+  },
+
   {0x451,		/* chip id */
    "STM32F767xI",	/* chip name */
    {			/* memory map */
@@ -55,7 +80,8 @@ static struct _stIdtbl		idtbl[] = {
    },
    {0, 1, 2, 4,  -1, -1, -1, -1},
    3,
-   5
+   5,
+   0xff
   },
 
   {0x450,		/* chip id */
@@ -67,7 +93,8 @@ static struct _stIdtbl		idtbl[] = {
    },
    {0, 1, 2, 4,  -1, -1, -1, -1},
    1,
-   2
+   2,
+   0xff
   },
   
   {0x435,		/* chip id */
@@ -78,7 +105,8 @@ static struct _stIdtbl		idtbl[] = {
    },
    {0, 1, 2, 3,  -1, -1, -1, -1},
    7,
-   8
+   8,
+   0xff
   },
 
   {-1,			/* chip id */
@@ -88,10 +116,11 @@ static struct _stIdtbl		idtbl[] = {
    },
    {-1, -1, -1, -1,  -1, -1, -1, -1},
    -1,
-   -1
+   -1,
+   0xff
   },
 };
-
+#define IDTBL_MAXCNT (sizeof(idtbl)/sizeof(struct _stIdtbl))
 
 int
 IdtblStm32GetSectorByAddr(int chipId, uint32_t *addr)
@@ -132,6 +161,25 @@ IdtblStm32GetSectorByAddr(int chipId, uint32_t *addr)
 
 end:
   return num;
+}
+
+
+uint8_t
+IdtblStm32GetBlankValueById(int chipId)
+{
+  uint8_t               val = 0xff;
+  struct _stIdtbl       *p = idtbl;
+
+  while(1) {
+    if(p->id == -1) break;
+    if(p->id == chipId) {
+      val = p->valBlank;
+      break;
+    }
+    p++;
+  }
+
+  return val;
 }
 
 
