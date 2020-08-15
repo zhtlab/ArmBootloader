@@ -84,6 +84,20 @@ static struct _stIdtbl		idtbl[] = {
    0xff
   },
 
+  {0x452,		/* chip id */
+   "STM32F730",         /* chip name */
+   {			/* memory map */
+     {0x08000000, 0x04000, 4, 0},	/* 4 times of  16k */
+     {0x08010000, 0x10000, 1, 4},	/* 1 times of  64k */
+     {0x08020000, 0x20000, 3, 5},	/* 3 times of 128k */
+     {-1, -1, -1, -1},
+   },
+   {0, -1, -1, -1,  -1, -1, -1, -1},
+   3,
+   5,
+   0xff
+  },
+
   {0x450,		/* chip id */
    "STM32H432xI",	/* chip name */
    {			/* memory map */
